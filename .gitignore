@@ -1,0 +1,3 @@
+.nvim/
+lua/**/init.lua.bak
+*.swp
