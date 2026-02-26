@@ -90,7 +90,7 @@ opts = {
     {
       name = "Vendure",
       url = "[https://docs.vendure.io/llms.txt](https://docs.vendure.io/llms.txt)",
-      base_url = "[https://docs.vendure.io](https://docs.vendure.io)",
+      base_url = "https://docs.vendure.io",
     },
     {
       name = "OpenAI",

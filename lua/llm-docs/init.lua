@@ -49,10 +49,17 @@ function M.setup(opts)
   end
 
   -- Load projects from user's init.lua/lazy config first
-  for _, p in ipairs(config_projects) do add_project(p) end
-  
-  -- Load dynamically added projects from previous sessions
-  for _, p in ipairs(persisted_projects) do add_project(p) end
+  for _, p in ipairs(config_projects) do 
+    -- If they only provided a base_url, assume standard /llms.txt
+    if p.base_url and not p.url then
+      p.url = p.base_url .. "/llms.txt"
+    end
+    -- If they only provided a url, extract the base_url
+    if p.url and not p.base_url then
+      p.base_url = p.url:match("(https?://[^/]+)")
+    end
+    add_project(p) 
+  end
 
   -- Define the command
   vim.api.nvim_create_user_command("LLMDocs", function(cmd_opts)
