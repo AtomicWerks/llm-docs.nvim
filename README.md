@@ -25,7 +25,7 @@ Install using [lazy.nvim](https://github.com/folke/lazy.nvim):
 
 ```lua
 {
-  "your-username/llm-docs.nvim",
+  "atomicwerks/llm-docs.nvim",
   dependencies = {
     "oysandvik94/curl.nvim",
     -- Optional: highly recommended for the best UI experience
