@@ -1,11 +1,25 @@
-local curl = require("curl")
 local M = {}
 
--- Internal helper to render the scratch buffer
+-- Helper to safely get the curl module
+local function get_curl()
+  local ok, curl = pcall(require, "curl")
+  if not ok then
+    vim.notify("curl.nvim not found. Make sure it is installed as a dependency.", vim.log.levels.ERROR)
+    return nil
+  end
+  return curl
+end
+
 local function display_markdown(url, title)
+  local curl = get_curl()
+  if not curl then return end
+
   curl.get(url, {
     callback = function(res)
-      if res.status ~= 200 then return end
+      if res.status ~= 200 then
+        vim.schedule(function() print("Error: Failed to fetch " .. title) end)
+        return
+      end
       vim.schedule(function()
         local buf = vim.api.nvim_create_buf(false, true)
         vim.api.nvim_set_option_value('buftype', 'nofile', { buf = buf })
@@ -19,7 +33,6 @@ local function display_markdown(url, title)
   })
 end
 
--- Universal Selector: Works with Telescope, fzf-lua, or vim.ui.select
 local function universal_picker(title, items, callback)
   -- 1. Try fzf-lua
   local has_fzf, fzf = pcall(require, "fzf-lua")
@@ -40,7 +53,7 @@ local function universal_picker(title, items, callback)
   end
 
   -- 2. Try Telescope
-  local has_tele, _ = pcall(require, "telescope")
+  local has_tele, telescope = pcall(require, "telescope")
   if has_tele then
     local pickers = require("telescope.pickers")
     local finders = require("telescope.finders")
@@ -69,7 +82,7 @@ local function universal_picker(title, items, callback)
     return
   end
 
-  -- 3. Fallback to native Neovim UI (if no plugins installed)
+  -- 3. Fallback to native UI
   vim.ui.select(items, {
     prompt = title,
     format_item = function(item) return item.name end,
@@ -79,11 +92,19 @@ local function universal_picker(title, items, callback)
 end
 
 function M.fetch_llms_txt(project)
+  local curl = get_curl()
+  if not curl or not curl.get then
+    -- Double check if the field exists
+    vim.notify("curl.get is nil. Check if oysandvik94/curl.nvim is correctly installed.", vim.log.levels.ERROR)
+    return
+  end
+
   curl.get(project.url, {
     callback = function(res)
+      if res.exit ~= 0 then return end
       local files = {}
       for name, link in res.body:gmatch("%[(.-)%]%((.-)%)") do
-        local full_link = link:match("^http") and link or (project.base_url .. link)
+        local full_link = link:match("^http") and link or (project.base_url:gsub("/$", "") .. "/" .. link:gsub("^/", ""))
         table.insert(files, { name = name, link = full_link })
       end
       vim.schedule(function()
@@ -106,3 +127,4 @@ function M.open_project_picker(projects)
 end
 
 return M
+
