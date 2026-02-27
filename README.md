@@ -48,7 +48,7 @@ Install using [lazy.nvim](https://github.com/folke/lazy.nvim):
 
 The plugin provides a single, smart command: :LLMDocs.
 
-### 1. Browse Saved Documentation
+### 1. Main Menu (New!)
 
 Run
 
@@ -57,13 +57,43 @@ Run
 ```
 (or use your keymap).
 
-If you have multiple projects saved, a picker will ask you to select a project.
-Once a project is selected, a second picker will display all available
-documentation files for that project.
-Press <Enter> to open the content in a new vertical split.
-The buffer is temporary (nofile) and will silently disappear when closed.
+This opens a new main menu with options:
+- **Browse Projects**: View and select from your saved projects
+- **Manage Projects**: Clean up and organize your projects
+- **Add New Project**: Interactive project addition
 
-### 2. Add New Documentation on the Fly
+All pickers now include back buttons (⬅️ Back) for easy navigation between menus.
+
+### 2. Browse Saved Documentation
+
+When you select "Browse Projects" from the main menu:
+- A picker will show all your saved projects
+- Select a project to see its available documentation files
+- Choose a file to open it in a new vertical split
+- Use the back button to return to the project list without opening a file
+- The buffer is temporary (nofile) and will silently disappear when closed.
+
+### 5. Navigation Controls
+
+All pickers support back navigation:
+- **fzf-lua**: Press `Ctrl+B` to go back
+- **Telescope**: Press `<Backspace>` to go back  
+- **Native vim.ui.select**: Select the "⬅️ Back" option
+
+Navigation flow:
+```
+Main Menu
+├─ Browse Projects → Project List → Document List → Document View
+│                                  ⬆ (Backspace)           ⬆ (Backspace)
+│                                  └──────────────────────┘
+├─ Manage Projects → (Delete options) → Main Menu
+│                                   ⬆ (Backspace)
+└─ Add New Project → (Input prompts) → Main Menu
+```
+
+Use `<Backspace>` at any time to return to the previous menu or quit the plugin.
+
+### 2. Quick Add Mode
 
 Run
 
@@ -72,6 +102,8 @@ Run
 ```
 
 to quickly add a new llms.txt file. The URL can be entered with or without quotes/brackets.
+
+**Navigation Tip**: Use `<Backspace>` to go back to the main menu from any picker.
 
 ### 3. Interactive Add Mode
 
@@ -86,6 +118,8 @@ to open an interactive prompt where you can:
 - Enter a custom name (or leave empty to use the hostname)
 - The project will be saved permanently to your library.
 
+**Navigation Tip**: After adding, you'll return to the main menu automatically.
+
 ### 4. Manage Projects
 
 Run
@@ -96,8 +130,11 @@ Run
 
 to open the project manager where you can:
 - View all saved projects
-- Delete projects you no longer need
+- Delete projects you no longer need (select "🗑️ DELETE: project-name")
 - Clean up your documentation library
+
+**Navigation Tip**: Use `<Backspace>` to return to the main menu after managing projects.
+- Use the back button to return to the main menu
 
 Example:
 
