@@ -52,7 +52,8 @@ The plugin provides a single, smart command: :LLMDocs.
 
 Run
 
-```sh :LLMDocs (or use your keymap).
+```vimscript
+:LLMDocs (or use your keymap).
 ```
 
 If you have multiple projects saved, a picker will ask you to select a project.
@@ -65,7 +66,8 @@ The buffer is temporary (nofile) and will silently disappear when closed.
 
 Run
 
-```sh :LLMDocs <URL>
+```vimscript
+:LLMDocs <URL>
 ```
 
 to fetch a new llms.txt file, open the file picker,
@@ -73,15 +75,18 @@ and save it permanently to your library.
 
 Example:
 
-```sh :LLMDocs [https://fastapi.tiangolo.com/llms.txt](https://fastapi.tiangolo.com/llms.txt)
+```vimscript
+:LLMDocs [https://fastapi.tiangolo.com/llms.txt](https://fastapi.tiangolo.com/llms.txt)
 ```
 
 The plugin parses the base URL, fetches the index, and saves it to
 
-```sh ~/.local/share/nvim/llm_docs_projects.json
+```vimscript
+~/.local/share/nvim/llm_docs_projects.json
 ```
 
 Next time you run :LLMDocs, FastAPI will be in your project list.
+
 ⚙️ Configuration (Optional)
 
 You don't need to define any URLs in your configuration; you can build your library
