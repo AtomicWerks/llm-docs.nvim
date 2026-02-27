@@ -14,7 +14,7 @@ end
 local function save_persisted(projects)
   local f = io.open(data_path, "w")
   if not f then return end
-  f:write(vim.json.encode(projects))
+  f:write(vim.json.encode(projects) .. "\n")
   f:close()
 end
 
@@ -51,8 +51,46 @@ function M.setup(opts)
 
    vim.api.nvim_create_user_command("LLMDocs", function(cmd_opts)
     local picker = require("llm-docs.picker")
-    if cmd_opts.args ~= "" then
+    
+    if cmd_opts.args == "add" then
+      -- Interactive add mode
+      vim.ui.input({ prompt = "Enter project URL:" }, function(url)
+        if url and url ~= "" then
+          -- Remove quotes and brackets if present
+          url = url:gsub("^['\"]+", ""):gsub("['\"]+$", ""):gsub("^%[+", ""):gsub("%]+$", "")
+          
+          local name = url:match("://([^/]+)") or "New Project"
+          
+          vim.ui.input({ prompt = "Enter project name (leave empty to use hostname):", default = name }, function(input_name)
+            if input_name and input_name ~= "" then
+              name = input_name
+            end
+            
+            local new_project = {
+              name = name,
+              url = url,
+              is_config = false
+            }
+            
+            add_project(new_project, false)
+            save_persisted(vim.tbl_filter(function(v) return not v.is_config end, M.state.projects))
+            vim.notify("Added project: " .. name .. " (" .. url .. ")", vim.log.levels.INFO)
+          end)
+        end
+      end)
+    elseif cmd_opts.args == "manage" then
+      -- Project management mode
+      picker.open_project_manager(M.state.projects, function(updated_projects)
+        M.state.projects = updated_projects
+        save_persisted(vim.tbl_filter(function(v) return not v.is_config end, M.state.projects))
+        vim.notify("Projects updated", vim.log.levels.INFO)
+      end)
+    elseif cmd_opts.args ~= "" then
+      -- Quick add mode: :LLMDocs https://url/llms.txt
       local url = cmd_opts.args
+      -- Remove quotes and brackets if present
+      url = url:gsub("^['\"]+", ""):gsub("['\"]+$", ""):gsub("^%[+", ""):gsub("%]+$", "")
+      
       local new_project = {
         name = url:match("://([^/]+)") or "New Project",
         url = url,
@@ -71,7 +109,12 @@ function M.setup(opts)
     else
       picker.open_project_picker(M.state.projects)
     end
-  end, { nargs = "?" })
+  end, { nargs = "?", complete = function(arglead, cmdline, cursorpos)
+    if cmdline:match("LLMDocs%s+$") then
+      return { "add", "manage" }
+    end
+    return {}
+  end })
 end
 
 return M

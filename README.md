@@ -71,8 +71,33 @@ Run
 :LLMDocs <URL>
 ```
 
-to fetch a new llms.txt file, use the command line to add it,
-and save it permanently to your library.
+to quickly add a new llms.txt file. The URL can be entered with or without quotes/brackets.
+
+### 3. Interactive Add Mode
+
+Run
+
+```vimscript
+:LLMDocs add
+```
+
+to open an interactive prompt where you can:
+- Enter the project URL (without quotes or brackets)
+- Enter a custom name (or leave empty to use the hostname)
+- The project will be saved permanently to your library.
+
+### 4. Manage Projects
+
+Run
+
+```vimscript
+:LLMDocs manage
+```
+
+to open the project manager where you can:
+- View all saved projects
+- Delete projects you no longer need
+- Clean up your documentation library
 
 Example:
 

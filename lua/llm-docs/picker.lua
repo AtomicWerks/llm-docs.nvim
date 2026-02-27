@@ -42,14 +42,14 @@ function M.get_curl()
           else
             -- Fallback for older Neovim versions
             local handle = io.popen(table.concat(cmd, " ") .. " 2>&1")
-            local result = handle:read("*a")
+            local result = handle and handle:read("*a") or ""
             handle:close()
 
             -- Simple check: if result contains common error patterns, consider it an error
-            if result:match("curl:%") or result:match("Failed to connect") or result:match("Could not resolve") then
+            if result and (result:match("curl:%") or result:match("Failed to connect") or result:match("Could not resolve")) then
               callback({ status = 1, body = result })
             else
-              callback({ status = 200, body = result })
+              callback({ status = 200, body = result or "" })
             end
           end
         end
@@ -194,6 +194,42 @@ function M.fetch_llms_txt(project)
       end)
     end,
   })
+end
+
+function M.open_project_manager(projects, callback)
+  -- Create a list of projects with delete option
+  local manager_items = {}
+  for _, project in ipairs(projects) do
+    if not project.is_config then
+      table.insert(manager_items, {
+        name = project.name .. " - " .. project.url,
+        project = project,
+        action = "keep"
+      })
+    end
+  end
+  
+  -- Add delete options
+  for i, item in ipairs(manager_items) do
+    table.insert(manager_items, {
+      name = "🗑️  DELETE: " .. item.project.name,
+      project = item.project,
+      action = "delete"
+    })
+  end
+  
+  universal_picker("Manage Projects", manager_items, function(selection)
+    if selection.action == "delete" then
+      -- Remove the project from the list
+      local updated_projects = {}
+      for _, p in ipairs(projects) do
+        if p ~= selection.project then
+          table.insert(updated_projects, p)
+        end
+      end
+      callback(updated_projects)
+    end
+  end)
 end
 
 function M.open_project_picker(projects)
