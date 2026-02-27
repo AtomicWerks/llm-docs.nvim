@@ -106,7 +106,7 @@ local function universal_picker(title, items, callback)
     for _, item in ipairs(items) do
       table.insert(fzf_items, item.name)
     end
-    fzf.fzf_exec(fzf_items, {
+     fzf.fzf_exec(fzf_items, {
       prompt = title .. "> ",
       actions = {
         ["default"] = function(selected)
@@ -116,6 +116,10 @@ local function universal_picker(title, items, callback)
               break
             end
           end
+        end,
+        ["ctrl-b"] = function()
+          -- Backspace/back navigation
+          callback({ action = "back" })
         end,
       },
     })
@@ -140,11 +144,16 @@ local function universal_picker(title, items, callback)
           end,
         }),
         sorter = conf.generic_sorter({}),
-        attach_mappings = function(prompt_bufnr, _)
+        attach_mappings = function(prompt_bufnr, map)
           actions.select_default:replace(function()
             local selection = action_state.get_selected_entry()
             actions.close(prompt_bufnr)
             callback(selection.value)
+          end)
+          -- Add backspace/back navigation
+          map("i", "<BS>", function()
+            actions.close(prompt_bufnr)
+            callback({ action = "back" })
           end)
           return true
         end,
@@ -243,8 +252,8 @@ function M.open_project_manager(projects, callback)
       vim.notify("Project removed: " .. selection.project.name, vim.log.levels.INFO)
       -- Reopen manager after deletion
       M.open_project_manager(updated_projects, callback)
-    elseif selection.action ~= "back" then
-      -- Keep action - just go back
+    elseif selection.action == "back" then
+      -- Back navigation - just go back
       callback(projects)
     end
   end)

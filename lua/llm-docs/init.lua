@@ -164,11 +164,19 @@ function M.setup(opts)
         }
       }
       
-      -- Use the universal picker for the main menu
-      local picker_module = require("llm-docs.picker")
-      picker_module.universal_picker("LLM Docs Main Menu", main_menu, function(selected)
-        selected.action()
-      end)
+       -- Add quit option
+       table.insert(main_menu, {
+         name = "❌  Quit",
+         action = function() end
+       })
+       
+       -- Use the universal picker for the main menu
+       local picker_module = require("llm-docs.picker")
+       picker_module.universal_picker("LLM Docs Main Menu", main_menu, function(selected)
+         if selected.name ~= "❌  Quit" then
+           selected.action()
+         end
+       end)
     end
   end, { nargs = "?", complete = function(arglead, cmdline, cursorpos)
     if cmdline:match("LLMDocs%s+$") then
