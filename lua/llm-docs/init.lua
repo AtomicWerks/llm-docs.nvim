@@ -49,7 +49,7 @@ function M.setup(opts)
   for _, p in ipairs(config_projects) do add_project(p, true) end
   for _, p in ipairs(persisted_projects) do add_project(p, false) end
 
-  vim.api.nvim_create_user_command("LLMDocs", function(cmd_opts)
+   vim.api.nvim_create_user_command("LLMDocs", function(cmd_opts)
     local picker = require("llm-docs.picker")
     if cmd_opts.args ~= "" then
       local url = cmd_opts.args
@@ -59,6 +59,14 @@ function M.setup(opts)
       }
       add_project(new_project, false)
       save_persisted(vim.tbl_filter(function(v) return not v.is_config end, M.state.projects))
+      
+      -- Check if curl is available before attempting to fetch
+      local curl = picker.get_curl()
+      if not curl then
+        vim.notify("llm-docs: curl.nvim is required but not installed. Please install curl.nvim.", vim.log.levels.ERROR)
+        return
+      end
+      
       picker.fetch_llms_txt(new_project)
     else
       picker.open_project_picker(M.state.projects)
