@@ -28,12 +28,12 @@ function M.setup(opts)
   local function add_project(p, is_config)
     -- Ensure base_url is just the base (e.g. https://docs.vendure.io)
     if p.base_url then p.base_url = p.base_url:gsub("/$", "") end
-    
+
     -- If no explicit url for llms.txt, derive it from base_url
     if not p.url and p.base_url then
       p.url = p.base_url .. "/llms.txt"
     end
-    
+
     -- Derive base_url from url if missing
     if p.url and not p.base_url then
       p.base_url = p.url:match("(https?://[^/]+)")
@@ -59,14 +59,14 @@ function M.setup(opts)
       }
       add_project(new_project, false)
       save_persisted(vim.tbl_filter(function(v) return not v.is_config end, M.state.projects))
-      
+
       -- Check if curl is available before attempting to fetch
       local curl = picker.get_curl()
       if not curl then
         vim.notify("llm-docs: curl.nvim is required but not installed. Please install curl.nvim.", vim.log.levels.ERROR)
         return
       end
-      
+
       picker.fetch_llms_txt(new_project)
     else
       picker.open_project_picker(M.state.projects)

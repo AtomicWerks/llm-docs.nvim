@@ -53,8 +53,9 @@ The plugin provides a single, smart command: :LLMDocs.
 Run
 
 ```vimscript
-:LLMDocs (or use your keymap).
+:LLMDocs
 ```
+(or use your keymap).
 
 If you have multiple projects saved, a picker will ask you to select a project.
 Once a project is selected, a second picker will display all available
@@ -70,7 +71,7 @@ Run
 :LLMDocs <URL>
 ```
 
-to fetch a new llms.txt file, open the file picker,
+to fetch a new llms.txt file, use the command line to add it,
 and save it permanently to your library.
 
 Example:

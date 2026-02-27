@@ -28,7 +28,7 @@ function M.get_curl()
         -- Use vim.system if available (Neovim 0.10+), otherwise fall back to vim.fn.system
         local function make_request()
           local cmd = { "curl", "-s", "-S", url }
-          
+
           local function on_exit(obj)
             if obj.code ~= 0 then
               callback({ status = obj.code, body = obj.stderr or "" })
@@ -36,7 +36,7 @@ function M.get_curl()
               callback({ status = 200, body = obj.stdout or "" })
             end
           end
-          
+
           if vim.system then
             vim.system(cmd, { text = true }, on_exit)
           else
@@ -44,7 +44,7 @@ function M.get_curl()
             local handle = io.popen(table.concat(cmd, " ") .. " 2>&1")
             local result = handle:read("*a")
             handle:close()
-            
+
             -- Simple check: if result contains common error patterns, consider it an error
             if result:match("curl:%") or result:match("Failed to connect") or result:match("Could not resolve") then
               callback({ status = 1, body = result })
@@ -53,9 +53,9 @@ function M.get_curl()
             end
           end
         end
-        
+
         vim.schedule(make_request)
-        
+
         return { cancel = function() end } -- Return a mock object with cancel method
       end
     }
