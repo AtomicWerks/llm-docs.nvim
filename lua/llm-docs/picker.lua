@@ -42,7 +42,7 @@ function M.get_curl()
           else
             -- Fallback for older Neovim versions
             local handle = io.popen(table.concat(cmd, " ") .. " 2>&1")
-            local result = handle and handle:read("*a") or ""
+            local result = handle and handle:read("*a")
             handle:close()
 
             -- Simple check: if result contains common error patterns, consider it an error

@@ -36,7 +36,12 @@ function M.setup(opts)
 
     -- Derive base_url from url if missing
     if p.url and not p.base_url then
-      p.base_url = p.url:match("(https?://[^/]+)")
+      -- Extract base URL by removing the filename part
+      p.base_url = p.url:gsub("/[^/]+$", "")
+      -- If that results in empty string (e.g., for root URLs), use the full domain
+      if p.base_url == "" then
+        p.base_url = p.url:match("(https?://[^/]+)")
+      end
     end
 
     if p.url and not seen_urls[p.url] then
