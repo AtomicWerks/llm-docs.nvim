@@ -218,6 +218,18 @@ function M.open_project_manager(projects, callback)
     })
   end
   
+  -- Add back option
+  table.insert(manager_items, {
+    name = "⬅️  Back to main menu",
+    action = "back"
+  })
+  
+  if #manager_items == 1 then
+    -- Only back option available, no projects to manage
+    vim.notify("No projects to manage.", vim.log.levels.INFO)
+    return
+  end
+  
   universal_picker("Manage Projects", manager_items, function(selection)
     if selection.action == "delete" then
       -- Remove the project from the list
@@ -228,16 +240,44 @@ function M.open_project_manager(projects, callback)
         end
       end
       callback(updated_projects)
+      vim.notify("Project removed: " .. selection.project.name, vim.log.levels.INFO)
+      -- Reopen manager after deletion
+      M.open_project_manager(updated_projects, callback)
+    elseif selection.action ~= "back" then
+      -- Keep action - just go back
+      callback(projects)
     end
   end)
 end
 
-function M.open_project_picker(projects)
+function M.open_project_picker(projects, on_back)
+  -- Add projects to picker items
+  local picker_items = {}
+  for _, project in ipairs(projects) do
+    table.insert(picker_items, {
+      name = project.name .. " - " .. project.url,
+      project = project,
+      action = "open"
+    })
+  end
+  
+  -- Add back option if callback provided
+  if on_back then
+    table.insert(picker_items, {
+      name = "⬅️  Back to main menu",
+      action = "back"
+    })
+  end
+  
   if #projects == 1 then
     M.fetch_llms_txt(projects[1])
   else
-    universal_picker("Select Project", projects, function(selection)
-      M.fetch_llms_txt(selection)
+    universal_picker("Select Project", picker_items, function(selection)
+      if selection.action == "open" then
+        M.fetch_llms_txt(selection.project)
+      elseif selection.action == "back" and on_back then
+        on_back()
+      end
     end)
   end
 end

@@ -112,7 +112,63 @@ function M.setup(opts)
 
       picker.fetch_llms_txt(new_project)
     else
-      picker.open_project_picker(M.state.projects)
+      -- Main menu with navigation options
+      local main_menu = {
+        {
+          name = "Browse Projects",
+          action = function()
+            picker.open_project_picker(M.state.projects, function()
+              -- When back from project picker, show main menu again
+              M.setup(opts)
+            end)
+          end
+        },
+        {
+          name = "Manage Projects",
+          action = function()
+            picker.open_project_manager(M.state.projects, function(updated_projects)
+              M.state.projects = updated_projects
+              save_persisted(vim.tbl_filter(function(v) return not v.is_config end, M.state.projects))
+              vim.notify("Projects updated", vim.log.levels.INFO)
+              -- After managing projects, show main menu again
+              M.setup(opts)
+            end)
+          end
+        },
+        {
+          name = "Add New Project",
+          action = function()
+            -- Reuse the add functionality
+            vim.ui.input({ prompt = "Enter project URL:" }, function(url)
+              if url and url ~= "" then
+                url = url:gsub("^['\"]+", ""):gsub("['\"]+$", ""):gsub("^%[+", ""):gsub("%]+$", "")
+                local name = url:match("://([^/]+)") or "New Project"
+                vim.ui.input({ prompt = "Enter project name (leave empty to use hostname):", default = name }, function(input_name)
+                  if input_name and input_name ~= "" then
+                    name = input_name
+                  end
+                  local new_project = {
+                    name = name,
+                    url = url,
+                    is_config = false
+                  }
+                  add_project(new_project, false)
+                  save_persisted(vim.tbl_filter(function(v) return not v.is_config end, M.state.projects))
+                  vim.notify("Added project: " .. name .. " (" .. url .. ")", vim.log.levels.INFO)
+                  -- After adding, show main menu again
+                  M.setup(opts)
+                end)
+              end
+            end)
+          end
+        }
+      }
+      
+      -- Use the universal picker for the main menu
+      local picker_module = require("llm-docs.picker")
+      picker_module.universal_picker("LLM Docs Main Menu", main_menu, function(selected)
+        selected.action()
+      end)
     end
   end, { nargs = "?", complete = function(arglead, cmdline, cursorpos)
     if cmdline:match("LLMDocs%s+$") then
