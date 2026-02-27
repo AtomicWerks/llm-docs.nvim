@@ -10,14 +10,17 @@ Powered by `curl.nvim` with seamless support for `fzf-lua` or `telescope.nvim`.
 - **Dynamic Persistence**:
   - Add new documentation URLs on the fly via the command line.
 - They are automatically saved to your local Neovim data directory for future sessions.
-  - **Picker Agnostic**:
+- **Picker Agnostic**:
 - Automatically detects and uses `fzf-lua` or `telescope.nvim`.
-  - Falls back to Neovim's native `vim.ui.select` if neither is installed.
+- Falls back to Neovim's native `vim.ui.select` if neither is installed.
+- **Robust HTTP Client**:
+- Uses `curl.nvim` when available for enhanced HTTP functionality.
+- Automatically falls back to system `curl` command if `curl.nvim` is not installed.
 
 ## ⚡ Requirements
 
 Neovim >= 0.9.0
-`curl` installed on your system.
+`curl` installed on your system (required for HTTP requests).
 
 ## 📦 Installation
 
@@ -27,6 +30,7 @@ Install using [lazy.nvim](https://github.com/folke/lazy.nvim):
 {
   "atomicwerks/llm-docs.nvim",
   dependencies = {
+    -- Optional: curl.nvim for enhanced HTTP functionality (falls back to system curl)
     "oysandvik94/curl.nvim",
     -- Optional: highly recommended for the best UI experience
     "ibhagwan/fzf-lua", 
